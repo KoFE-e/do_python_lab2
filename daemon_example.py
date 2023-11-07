@@ -37,24 +37,25 @@ class MyDaemon(Daemon):
         
         output_remote = subprocess.check_output(log + " main..origin/main", shell=True, text=True)
 
-        commits_local = parseCommits(output_local)
-        self.last_commit_time = commits_local[0]['date']
-        self.last_commit_hesh = commits_local[0]['hesh']
+        if output_remote != '':
+            commits_local = parseCommits(output_local)
+            self.last_commit_time = commits_local[0]['date']
+            self.last_commit_hesh = commits_local[0]['hesh']
 
-        commits_remote = parseCommits(output_remote)
+            commits_remote = parseCommits(output_remote)
 
-        last_commit = self.get_last_remote_commit(commits_remote, self.last_commit_time)
+            last_commit = self.get_last_remote_commit(commits_remote, self.last_commit_time)
 
-        if commits_remote[0]['hesh'] == commits_local[0]['hesh'] and commits_remote[0]['date'] == commits_local[0]['date']:
-            return ''
+            if commits_remote[0]['hesh'] == commits_local[0]['hesh'] and commits_remote[0]['date'] == commits_local[0]['date']:
+                return ''
 
-        if last_commit != '': 
-            changes += last_commit
-        
-        count = self.count_commits(commits_remote, self.last_commit_time)
+            if last_commit != '': 
+                changes += last_commit
+            
+            count = self.count_commits(commits_remote, self.last_commit_time)
 
-        if count != 0:
-            changes += 'Total: ' + str(count) + ' new commits'
+            if count != 0:
+                changes += 'Total: ' + str(count) + ' new commits'
 
         return changes
         

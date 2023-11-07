@@ -20,7 +20,6 @@ class Daemon:
 
         # decouple from parent environment
         os.chdir('/')
-        
         os.setsid()
         os.umask(0)
 

@@ -109,6 +109,44 @@ class MyDaemon(Daemon):
         except subprocess.CalledProcessError:
             pass
         return process
+    
+    def check_updates(self):
+        fetch = subprocess.check_output("cd " + self.path + " && git fetch", shell=True)
+
+        log = "cd " + self.path + " && git log --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%ad)%Creset' --abbrev-commit --date=format:'%Y-%m-%d %H:%M:%S'"
+
+        output_local = subprocess.check_output(log, shell=True, text=True)
+        
+        output_remote = subprocess.check_output(log + " main..origin/main", shell=True, text=True)
+
+        is_update = 'There is no new commits in remote repository'
+
+        if output_remote != '':
+            commits_local = parseCommits(output_local)
+            self.last_commit_time = commits_local[0]['date']
+            self.last_commit_hesh = commits_local[0]['hesh']
+
+            commits_remote = parseCommits(output_remote)
+
+            last_commit = self.get_last_remote_commit(commits_remote, self.last_commit_time)
+
+            if commits_remote[0]['hesh'] == commits_local[0]['hesh'] and commits_remote[0]['date'] == commits_local[0]['date']:
+                return ''
+
+            if last_commit != '': 
+                changes += last_commit
+            
+            is_update = self.find_update(commits_remote, self.last_commit_time)
+
+        print(is_update)
+
+        return is_update
+
+    def find_update(self, list_commits, last_time_local):
+        for item in list_commits:
+            if item['date'] > last_time_local and (item['message'].find('Update') != -1 or item['message'].find('update') != -1):
+                return 'There is a new update!'
+        return 'There is no updates in remote repository'
         
 
 if __name__ == '__main__':
@@ -126,6 +164,8 @@ if __name__ == '__main__':
         daemon.restart()
     elif argum[1] == 'status':
         daemon.status()
+    elif argum[1] == 'check_updates':
+        daemon.check_updates()
     else:
         print('Incorrect arguments')
         sys.exit(1)

@@ -1,6 +1,5 @@
 from datetime import datetime
 
-
 def parseCommits(text):
     list_of_commits = []
 

@@ -5,6 +5,12 @@ class Daemon:
     def __init__(self, pidfile, path): 
         self.pidfile = pidfile
         self.path = path
+        self.statuses = {
+            '0': 'Daemon is running.',
+            '1': 'Daemon is not running.',
+            '2': 'Pidfile not found, stopping daemon.',
+            '3': 'Process not found, removing pidfile.'
+        }
 
     def daemonize(self):
         """Deamonize class. UNIX double fork mechanism."""
@@ -51,8 +57,8 @@ class Daemon:
 
         with open(self.pidfile,'w+') as f:
             f.write(pid + '\n') 
-            
-            
+
+
     def delpid(self):
         os.remove(self.pidfile)
 

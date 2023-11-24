@@ -1,5 +1,6 @@
 import os
 import subprocess
+import signal
 import time, sys
 from daemon import Daemon
 from parseCommits import parseCommits
@@ -58,7 +59,7 @@ class MyDaemon(Daemon):
                 changes += 'Total: ' + str(count) + ' new commits'
 
         return changes
-        
+
 
     def run(self):
         self.changes = ''
@@ -74,6 +75,40 @@ class MyDaemon(Daemon):
             time.sleep(1)
 
             self.changes = changes
+
+    def status(self):
+        status_text = ''
+        pidfile = self.check_pidfile()
+        process = self.check_process()
+        if pidfile and process:
+            status_text = self.statuses['0']
+        elif not pidfile and not process:
+            status_text = self.statuses['1']
+        elif not pidfile and process:
+            status_text = self.statuses['2']
+            self.kill_all_daemons()
+        else:
+            status_text = self.statuses['3']
+            self.delpid()
+        print(status_text)
+        return status_text
+            
+    def kill_all_daemons(self):
+        list_of_daemons = subprocess.check_output('pgrep "^python daemon_example.py start|restart$" -f', shell=True, text=True).split('\n')
+        for item in list_of_daemons:
+            if len(item) > 0:
+                os.kill(int(item), signal.SIGTERM)
+
+    def check_pidfile(self):
+        return os.path.isfile(self.pidfile)
+    
+    def check_process(self):
+        process = False
+        try:
+            process = True if subprocess.check_output('pgrep "^python daemon_example.py start|restart$" -f', shell=True, text=True) != '' else False
+        except subprocess.CalledProcessError:
+            pass
+        return process
         
 
 if __name__ == '__main__':
@@ -89,6 +124,8 @@ if __name__ == '__main__':
         daemon.stop()
     elif argum[1] == 'restart':
         daemon.restart()
+    elif argum[1] == 'status':
+        daemon.status()
     else:
         print('Incorrect arguments')
         sys.exit(1)

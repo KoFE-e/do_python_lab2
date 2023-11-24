@@ -111,7 +111,7 @@ class MyDaemon(Daemon):
         return process
     
     def check_updates(self):
-        fetch = subprocess.check_output("cd " + self.path + " && git fetch", shell=True)
+        fetch = subprocess.check_output("cd " + self.path + " && git fetch", shell=True, text=True)
 
         log = "cd " + self.path + " && git log --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%ad)%Creset' --abbrev-commit --date=format:'%Y-%m-%d %H:%M:%S'"
 

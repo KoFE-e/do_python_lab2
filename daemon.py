@@ -59,7 +59,7 @@ class Daemon:
 
     def start(self):
         if os.path.isfile(self.pidfile):
-            print('pidfile' + self.pidfile + ' already exists. Daemon already running?')
+            print('pidfile ' + self.pidfile + ' already exists. Daemon already running?')
             sys.exit(1)
         else:
             self.daemonize()
@@ -67,7 +67,7 @@ class Daemon:
 
     def stop(self):
         if not os.path.isfile(self.pidfile):
-            print('pidfile' + self.pidfile + ' does not exist. Daemon not running?')
+            print('pidfile ' + self.pidfile + ' does not exist. Daemon not running?')
         else:
             pid = 0
             with open(self.pidfile, 'r') as f:

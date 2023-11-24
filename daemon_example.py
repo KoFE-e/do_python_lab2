@@ -128,23 +128,18 @@ class MyDaemon(Daemon):
 
             commits_remote = parseCommits(output_remote)
 
-            last_commit = self.get_last_remote_commit(commits_remote, self.last_commit_time)
-
             if commits_remote[0]['hesh'] == commits_local[0]['hesh'] and commits_remote[0]['date'] == commits_local[0]['date']:
                 return ''
-
-            if last_commit != '': 
-                changes += last_commit
             
-            is_update = self.find_update(commits_remote, self.last_commit_time)
+            is_update = self.find_update(commits_remote)
 
         print(is_update)
 
         return is_update
 
-    def find_update(self, list_commits, last_time_local):
+    def find_update(self, list_commits):
         for item in list_commits:
-            if item['date'] > last_time_local and (item['message'].find('Update') != -1 or item['message'].find('update') != -1):
+            if item['message'].find('Update') != -1 or item['message'].find('update') != -1:
                 return 'There is a new update!'
         return 'There is no updates in remote repository'
         
